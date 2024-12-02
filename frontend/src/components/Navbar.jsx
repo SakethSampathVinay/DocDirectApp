@@ -6,6 +6,7 @@ const Navbar = () => {
   const navigate = useNavigate();
 
   const [token, setToken] = useState(true);
+  const [showMenu, setShowMenu] = useState(false);
 
   return (
     <div className="flex items-center justify-between text-sm py-4 mb-5 border-b border-b-[#ADADAD]">
@@ -79,6 +80,46 @@ const Navbar = () => {
             </button>
           </div>
         )}
+        <img
+          src={assets.menu_icon}
+          className="w-6 md:hidden "
+          alt="menu icon"
+          onClick={() => setShowMenu(true)}
+        />
+        <div
+          className={`md:hidden ${
+            showMenu ? "fixed w-full" : "h-0 w-0"
+          } right-0 top-0 bottom-0 z-20 overflow-hidden bg-white transition-all`}
+        >
+          <div className="flex items-center justify-between px-5 py-6">
+            <h1
+              onClick={() => navigate("/")}
+              className="text-primary font-sans font-black text-4xl cursor-pointer"
+            >
+              DocDirect
+            </h1>
+            <img
+              src={assets.cross_icon}
+              alt="cross icon"
+              className="w-7"
+              onClick={() => setShowMenu(false)}
+            />
+          </div>
+          <ul className="flex flex-col items-center gap-2 mt-5 px-5 text-lg font-medium">
+            <NavLink onClick={() => setShowMenu(false)} to="/">
+              <p className="px-4 py-2 rounded full inline-block bg-primary text-white">HOME</p>
+            </NavLink>
+            <NavLink onClick={() => setShowMenu(false)} to="/doctors">
+              <p className="px-4 py-2 rounded full inline-block">ALL DOCTORS</p>
+            </NavLink>
+            <NavLink onClick={() => setShowMenu(false)} to="/about">
+              <p className="px-4 py-2 rounded full inline-block">ABOUT</p>
+            </NavLink>
+            <NavLink onClick={() => setShowMenu(false)} to="/contact">
+              <p className="px-4 py-2 rounded full inline-block">CONTACT</p>
+            </NavLink>
+          </ul>
+        </div>
       </div>
     </div>
   );
