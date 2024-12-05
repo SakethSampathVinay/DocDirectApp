@@ -13,15 +13,24 @@ const loginAdmin = async (request, response) => {
       email === process.env.ADMIN_EMAIL &&
       password === process.env.ADMIN_PASSWORD
     ) {
-      const token = jwt.sign(email + password, process.env.JWT_SECRET);
-      console.log()
-      response.json({ success: true, message: "Logged Successfully", token });
+      const token = jwt.sign({ email }, process.env.JWT_SECRET, {
+        expiresIn: "1h",
+      });
+      console.log(token);
+      return response.json({
+        success: true,
+        message: "Logged Successfully",
+        token,
+      });
     } else {
-      response.json({ success: false, message: "Invalid Email or Password" });
+      return response.json({
+        success: false,
+        message: "Invalid Email or Password",
+      });
     }
   } catch (error) {
     console.log(error);
-    response.json({ success: false, message: "Error Occured" });
+    return response.json({ success: false, message: "Error Occured" });
   }
 };
 

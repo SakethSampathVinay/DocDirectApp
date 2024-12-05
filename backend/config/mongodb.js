@@ -1,13 +1,18 @@
-import mongoose from "mongoose"
-
-
+import mongoose from "mongoose";
 
 const connectToDB = async () => {
-    await mongoose.connect("mongodb+srv://sakethsampath2006:R2yXmI3Bqh76ARjC@cluster0.bijq6.mongodb.net/DocDirect");
-    const db = mongoose.connection;
-    db.on("open", (open) => console.log("MongoDB Connected Successfully"));
-    db.on("error", (err) => console.log(err));
+  try {
+    await mongoose.connect(process.env.MONGODB_URL, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
+    console.log("MongoDB Connected Successfully");
+  } catch (error) {
+    console.error("Error connecting to MongoDB:", error.message);
+  }
 
-}
+  const db = mongoose.connection;
+  db.on("error", (err) => console.error("MongoDB Connection Error:", err));
+};
 
 export default connectToDB;
