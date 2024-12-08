@@ -2,17 +2,18 @@ import jwt from "jsonwebtoken";
 
 const authAdmin = async (request, response, next) => {
   try {
-    const { token } = request.headers;
-    if (!token) {
+    const authHeader = request.headers.authorization;
+    if (!authHeader) {
       return response
         .status(401)
-        .json({ success: false, message: "Not Authorized Login in again" });
+        .json({ success: false, message: "Not Authorized. Login again." });
     }
+    const token = authHeader.split(" ")[1];
+    console.log(token)
     const token_decode = jwt.verify(token, process.env.JWT_SECRET);
-    if (
-      !token_decode !==
-      process.env.ADMIN_EMAIL + process.env.ADMIN_PASSWORD
-    ) {
+
+    // Validate the token content (decoded payload)
+    if (!token_decode || token_decode.email !== process.env.ADMIN_EMAIL) {
       return response
         .status(401)
         .json({ success: false, message: "Invalid token" });
@@ -22,7 +23,7 @@ const authAdmin = async (request, response, next) => {
     console.log(error);
     return response
       .status(401)
-      .json({ success: false, message: "UnAuthorized" });
+      .json({ success: false, message: "Unauthorized" });
   }
 };
 

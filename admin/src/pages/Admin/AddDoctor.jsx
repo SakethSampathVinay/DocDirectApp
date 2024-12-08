@@ -53,7 +53,9 @@ const AddDoctor = () => {
         backendUrl + "/api/admin/add-doctor",
         formData,
         {
-          headers: { Authorization: `Bearer ${aToken}` },
+          headers: {
+            Authorization: `Bearer ${aToken}`, // Ensure `aToken` is valid
+          },
           "Content-Type": "multipart/form-data",
         }
       );

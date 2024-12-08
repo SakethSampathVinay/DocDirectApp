@@ -34,6 +34,7 @@ const loginAdmin = async (request, response) => {
   }
 };
 
+// API for addDoctor
 const addDoctor = async (request, response) => {
   const {
     name,
@@ -119,4 +120,15 @@ const addDoctor = async (request, response) => {
   });
 };
 
-export { addDoctor, loginAdmin };
+// API for DoctorList 
+const allDoctors = async (request, response) => {
+  try {
+    const doctors = await doctorModel.find({}).select("-password"); // removes the password property from the doctors response
+    response.json({success: true, doctors})
+  } catch(error) {
+    console.log(error);
+    response.json({success: false, message: error.message})
+  }
+}
+
+export { addDoctor, loginAdmin, allDoctors};

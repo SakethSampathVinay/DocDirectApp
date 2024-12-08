@@ -1,12 +1,18 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { assets } from "../assets/assets";
+import { AppContext } from "../context/AppContext";
 
 const Navbar = () => {
   const navigate = useNavigate();
 
-  const [token, setToken] = useState(true);
+  const { token, setToken, userData } = useContext(AppContext);
   const [showMenu, setShowMenu] = useState(false);
+
+  const logout = () => {
+    setToken(false);
+    localStorage.removeItem("token");
+  };
 
   return (
     <div className="flex items-center justify-between text-sm py-4 mb-5 border-b border-b-[#ADADAD]">
@@ -38,7 +44,7 @@ const Navbar = () => {
         {token ? (
           <div className="flex items-center gap-2 cursor-pointer group relative">
             <img
-              src={assets.profile_pic}
+              src={userData.image}
               className="w-8 rounded-full"
               alt="user image"
             />
@@ -61,10 +67,7 @@ const Navbar = () => {
                 >
                   My Appointments
                 </p>
-                <p
-                  onClick={() => setToken(false)}
-                  className="hover:text-black cursor-pointer"
-                >
+                <p onClick={logout} className="hover:text-black cursor-pointer">
                   Logout
                 </p>
               </div>
@@ -107,7 +110,9 @@ const Navbar = () => {
           </div>
           <ul className="flex flex-col items-center gap-2 mt-5 px-5 text-lg font-medium">
             <NavLink onClick={() => setShowMenu(false)} to="/">
-              <p className="px-4 py-2 rounded full inline-block bg-primary text-white">HOME</p>
+              <p className="px-4 py-2 rounded full inline-block bg-primary text-white">
+                HOME
+              </p>
             </NavLink>
             <NavLink onClick={() => setShowMenu(false)} to="/doctors">
               <p className="px-4 py-2 rounded full inline-block">ALL DOCTORS</p>
