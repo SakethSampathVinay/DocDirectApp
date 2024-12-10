@@ -5,6 +5,7 @@ import userModel from "../models/userModel.js";
 import { v2 as cloudinary } from "cloudinary";
 import appointmentModel from "../models/appointmentModel.js";
 import doctorModel from "../models/doctorModel.js";
+import razorpay from "razorpay";
 
 // API for Register User
 const registerUser = async (request, response) => {
@@ -185,4 +186,55 @@ const bookAppointment = async (request, response) => {
   }
 };
 
-export { registerUser, loginUser, getProfile, updateProfile, bookAppointment };
+// API for list of Appointment
+const listAppointment = async (request, response) => {
+  try {
+    const { userId } = request.body;
+    const appointments = await appointmentModel.find({ userId });
+    response.json({ success: true, appointments });
+  } catch (error) {
+    console.log(error);
+    response.json({ success: false, message: error.message });
+  }
+};
+
+// API for Cancel Appointment
+const cancelAppointment = async (request, response) => {
+  try {
+    const { userId, appointmentId } = request.body;
+    const appointmentData = await appointmentModel.findById(appointmentId);
+
+    if (appointmentData.userId !== userId) {
+      return response.json({ success: false, message: "Unauthorized User" });
+    }
+
+    await appointmentModel.findByIdAndUpdate(appointmentId, {
+      cancelled: true,
+    });
+
+    // releasing doctor slot
+    const { docId, slotTime, slotDate } = appointmentData;
+
+    const doctorData = await doctorModel.findById(docId);
+    let slots_booked = doctorData.slots_booked;
+
+    slots_booked[slotDate] = slots_booked[slotDate].filter(
+      (e) => e !== slotTime
+    );
+    await doctorModel.findByIdAndUpdate(docId, { slots_booked });
+    response.json({ success: true, message: "Appointment Cancelled" });
+  } catch (error) {
+    console.log(error);
+    response.json({ success: false, message: error.message });
+  }
+};
+
+export {
+  registerUser,
+  loginUser,
+  getProfile,
+  updateProfile,
+  bookAppointment,
+  listAppointment,
+  cancelAppointment,
+};
