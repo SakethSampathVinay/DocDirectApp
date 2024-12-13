@@ -1,14 +1,13 @@
 import React, { useContext, useEffect, useState } from "react";
 import { AppContext } from "../context/AppContext";
-import axios from "axios"
+import axios from "axios";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 
 const Login = () => {
-
   const navigate = useNavigate();
 
-  const {token, setToken, backendUrl} = useContext(AppContext);
+  const { token, setToken, backendUrl } = useContext(AppContext);
 
   const [state, setState] = useState("Sign Up");
   const [name, setName] = useState("");
@@ -19,33 +18,40 @@ const Login = () => {
     event.preventDefault();
     try {
       if (state === "Sign Up") {
-        const {data} = await axios.post(backendUrl + "/api/user/register", {name, password, email});
-        if(data.success) {
+        const { data } = await axios.post(backendUrl + "/api/user/register", {
+          name,
+          password,
+          email,
+        });
+        if (data.success) {
           localStorage.setItem("token", data.token);
           setToken(data.token);
-        } else{
+        } else {
           toast.error(data.message);
         }
       } else {
-        const {data} = await axios.post(backendUrl + "/api/user/login", {password, email});
-        if(data.success) {
+        const { data } = await axios.post(backendUrl + "/api/user/login", {
+          password,
+          email,
+        });
+        if (data.success) {
           localStorage.setItem("token", data.token);
           setToken(data.token);
-        } else{
+        } else {
           toast.error(data.message);
         }
       }
-    } catch(error) {
-      console.log(error)
+    } catch (error) {
+      console.log(error);
       toast.error(error.message);
     }
   };
 
   useEffect(() => {
-    if(token) {
-      navigate("/")
+    if (token) {
+      navigate("/");
     }
-  }, [token])
+  }, [token]);
 
   return (
     <form onSubmit={handleOnSubmit} className="min-h-[80vh] flex items-center">
@@ -62,7 +68,7 @@ const Login = () => {
             <p>Full Name</p>
             <input
               placeholder="Please Enter your Full name"
-              onChange={(event) => event.target.value}
+              onChange={(event) => setName(event.target.value)}
               type="text"
               value={name}
               required
@@ -103,11 +109,22 @@ const Login = () => {
         {state === "Sign Up" ? (
           <p>
             Already have an account ?{" "}
-            <span onClick={() => setState("Login")} className="cursor-pointer text-primary-900 font-semibold">Login here</span>
+            <span
+              onClick={() => setState("Login")}
+              className="cursor-pointer text-primary-900 font-semibold"
+            >
+              Login here
+            </span>
           </p>
         ) : (
           <p>
-            Create an account? <span onClick={() => setState("Sign Up")} className="cursor-pointer text-primary-900 font-semibold">Click here</span>
+            Create an account?{" "}
+            <span
+              onClick={() => setState("Sign Up")}
+              className="cursor-pointer text-primary-900 font-semibold"
+            >
+              Click here
+            </span>
           </p>
         )}
       </div>

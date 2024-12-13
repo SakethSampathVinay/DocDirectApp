@@ -1,4 +1,4 @@
-import React, { createContext, useState } from "react";
+import React, { createContext, useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import axios from "axios";
 
@@ -15,6 +15,14 @@ const DoctorContextProvider = (props) => {
   const [profileData, setProfileData] = useState(false);
 
   const backendurl = import.meta.env.VITE_BACKEND_URL;
+
+  useEffect(() => {
+    if (dToken) {
+      localStorage.setItem("DToken", dToken);
+    } else {
+      localStorage.removeItem("DToken");
+    }
+  }, [dToken]);
 
   // Getting the Doctor Appointment Data from the Database using API
   const getAppointments = async () => {
