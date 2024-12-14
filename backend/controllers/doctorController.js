@@ -1,6 +1,6 @@
 import doctorModel from "../models/doctorModel.js";
 import jwt from "jsonwebtoken";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import appointmentModel from "../models/appointmentModel.js";
 
 // API to Change Doctor Availability for Admin and Doctor Panel
