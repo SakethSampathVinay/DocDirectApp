@@ -9,7 +9,7 @@ import axios from "axios";
 
 const Appointment = () => {
   const { docId } = useParams();
-  const { doctors, currencySymbol, backendUrl, token, getDoctorsData } =
+  const { doctors, currencySymbol, backendUrl, token, getDoctorsData, loading } =
     useContext(AppContext);
   const daysOfWeek = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
 
@@ -220,7 +220,7 @@ const Appointment = () => {
       </div>
       <RelatedDoctors speciality={docInfo.speciality} docId={docId} />
     </div>
-  ) : null;
+  ) : null
 };
 
 export default Appointment;

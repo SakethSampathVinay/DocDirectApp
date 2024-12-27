@@ -12,8 +12,10 @@ const AppContextProvider = (props) => {
   );
   const [doctors, setDoctors] = useState([]);
   const [userData, setUserData] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const getDoctorsData = async () => {
+    setLoading(true);
     try {
       const { data } = await axios.get(backendUrl + "/api/doctor/list");
 
@@ -25,6 +27,8 @@ const AppContextProvider = (props) => {
     } catch (error) {
       console.log(error);
       toast.error(error.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -67,6 +71,7 @@ const AppContextProvider = (props) => {
     setUserData,
     userData,
     loadUserProfileData,
+    loading,
   };
 
   return (
