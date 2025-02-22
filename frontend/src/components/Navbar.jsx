@@ -39,9 +39,9 @@ const Navbar = () => {
           <li className="py-1">CONTACT</li>
           <hr className="border-none outline-none h-0.5 bg-primary w-3/5 m-auto hidden" />
         </NavLink>
-        <a href="https://doc-direct-app-zyc8.vercel.app/admin-dashboard" target="_blank" rel="noreferrer">
+        {/* <a href="https://doc-direct-app-zyc8.vercel.app/admin-dashboard" target="_blank" rel="noreferrer">
           <li className=" border px-2.5 py-0.5 rounded-full border-gray-500 text-white-500">Admin Panel</li>
-        </a>
+        </a> */}
       </ul>
       <div className="flex items-center gap-4">
         {token ? (
