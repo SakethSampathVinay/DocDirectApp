@@ -15,6 +15,7 @@ import { Routes, Route } from "react-router-dom";
 
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import Chatbot from "./pages/chatbot";
 
 function App() {
   return (
@@ -31,8 +32,9 @@ function App() {
         <Route path="/appointment/:docId" element={<Appointment />} />
         <Route path="/my-appointments" element={<MyAppointments />} />
         <Route path="/my-profile" element={<MyProfile />} />
-        <Route path="/verify" element={<Verify />} />"
+        <Route path="/verify" element={<Verify />} />
       </Routes>
+      <Chatbot />
       <Footer />
     </div>
   );

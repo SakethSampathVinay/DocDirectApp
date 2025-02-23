@@ -6,6 +6,7 @@ import { v2 as cloudinary } from "cloudinary";
 import appointmentModel from "../models/appointmentModel.js";
 import doctorModel from "../models/doctorModel.js";
 import razorpay from "razorpay";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 // API for Register User
 const registerUser = async (request, response) => {
@@ -281,6 +282,49 @@ const verifyPayment = async (request, response) => {
   }
 };
 
+const genAI = new GoogleGenerativeAI(process.env.GOOGLE_GEMINI_API_KEY);
+
+const allowedTopics = [
+  "doctor",
+  "medical",
+  "appointment",
+  "health",
+  "symptoms",
+  "prescription",
+];
+
+const removeMarkdown = (text) => {
+  return text
+    .replace(/\*\*/g, "")
+    .replace(/[*#_-]/g, "")
+    .trim();
+};
+
+const chatWithBot = async (req, res) => {
+  try {
+    const { message } = req.body;
+
+    if (!allowedTopics.some((topic) => message.toLowerCase().includes(topic))) {
+      return res.json({
+        success: false,
+        reply:
+          "I'm only here to help with medical and appointment-related questions.",
+      });
+    }
+
+    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+    const chat = await model.generateContent(message);
+    let botReply = chat.response.candidates[0].content.parts[0].text;
+
+    // Remove markdown formatting
+    botReply = removeMarkdown(botReply);
+
+    res.json({ success: true, reply: botReply });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: "Something went wrong" });
+  }
+};
 export {
   registerUser,
   loginUser,
@@ -291,4 +335,5 @@ export {
   cancelAppointment,
   paymentRazorpay,
   verifyPayment,
+  chatWithBot,
 };
