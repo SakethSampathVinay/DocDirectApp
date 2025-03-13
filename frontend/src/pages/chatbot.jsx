@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { Send, X, MessageCircle } from "lucide-react";
+import { AppContext } from "../context/AppContext";
+import { useContext } from "react";
 
 const Chatbot = () => {
   const [messages, setMessages] = useState([]);
@@ -9,19 +11,19 @@ const Chatbot = () => {
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
 
-  // Auto-scroll to the latest message
+  const { userData, setUserData, token, backendUrl, loadUserProfileData } =
+    useContext(AppContext);
+
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // Auto-focus on input when chatbot opens
   useEffect(() => {
     if (isOpen) {
       setTimeout(() => inputRef.current?.focus(), 300);
     }
   }, [isOpen]);
 
-  // Send user message to chatbot
   const sendMessage = async () => {
     if (!input.trim()) return;
 
@@ -30,10 +32,9 @@ const Chatbot = () => {
     setInput("");
 
     try {
-      const { data } = await axios.post(
-        "http://localhost:4000/api/user/chatbot",
-        { message: input }
-      );
+      const { data } = await axios.post(`${backendUrl}/api/user/chatbot`, {
+        message: input,
+      });
       const botMessage = { text: data.reply, sender: "bot" };
       setMessages((prev) => [...prev, botMessage]);
     } catch (error) {
@@ -43,7 +44,6 @@ const Chatbot = () => {
 
   return (
     <div className="fixed bottom-6 right-6 z-50">
-      {/* Chatbot Toggle Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="bg-blue-600 text-white p-4 rounded-full shadow-lg hover:bg-blue-700 transition-all flex items-center justify-center"
@@ -51,7 +51,6 @@ const Chatbot = () => {
         {isOpen ? <X size={24} /> : <MessageCircle size={24} />}
       </button>
 
-      {/* Chatbot Window */}
       <div
         className={`fixed bottom-20 right-6 w-80 bg-white shadow-xl rounded-lg border border-gray-300 transition-all transform ${
           isOpen
@@ -59,7 +58,6 @@ const Chatbot = () => {
             : "translate-y-5 opacity-0 pointer-events-none"
         }`}
       >
-        {/* Header */}
         <div className="bg-blue-600 text-white p-3 flex justify-between items-center">
           <span className="font-semibold">Virtual Doctor Chatbot</span>
           <button onClick={() => setIsOpen(false)} className="text-white">
@@ -67,7 +65,6 @@ const Chatbot = () => {
           </button>
         </div>
 
-        {/* Messages Area */}
         <div className="p-3 h-64 overflow-y-auto flex flex-col space-y-2">
           {messages.map((msg, index) => (
             <div
@@ -84,7 +81,6 @@ const Chatbot = () => {
           <div ref={messagesEndRef} />
         </div>
 
-        {/* Input Box */}
         <div className="flex items-center p-3 border-t">
           <input
             ref={inputRef}
