@@ -304,6 +304,13 @@ const chatWithBot = async (req, res) => {
   try {
     const { message } = req.body;
 
+    if (!message || typeof message !== "string") {
+      return res.status(400).json({
+        success: false,
+        reply: "Invalid input. Please send a valid message.",
+      });
+    }
+
     if (!allowedTopics.some((topic) => message.toLowerCase().includes(topic))) {
       return res.json({
         success: false,
@@ -312,17 +319,23 @@ const chatWithBot = async (req, res) => {
       });
     }
 
-    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
-    const chat = await model.generateContent(message);
-    let botReply = chat.response.candidates[0].content.parts[0].text;
+    const model = genAI.getGenerativeModel({ model: "models/gemini-pro" });
+    const chatSession = model.startChat();
+    const result = await chatSession.sendMessage(message);
+    let botReply = result.response.text();
 
-    // Remove markdown formatting
+    // Clean markdown
     botReply = removeMarkdown(botReply);
 
     res.json({ success: true, reply: botReply });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ success: false, message: "Something went wrong" });
+    res
+      .status(500)
+      .json({
+        success: false,
+        message: "Something went wrong with Gemini API.",
+      });
   }
 };
 
