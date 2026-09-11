@@ -47,7 +47,7 @@ const Navbar = () => {
         {token ? (
           <div className="flex items-center gap-2 cursor-pointer group relative">
             <img
-              src={userData.image}
+              src={userData?.image}
               className="w-8 rounded-full"
               alt="user image"
             />

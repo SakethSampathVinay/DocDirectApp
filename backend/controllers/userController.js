@@ -6,6 +6,7 @@ import { v2 as cloudinary } from "cloudinary";
 import appointmentModel from "../models/appointmentModel.js";
 import doctorModel from "../models/doctorModel.js";
 import razorpay from "razorpay";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 // API for Register User
 const registerUser = async (request, response) => {
@@ -229,6 +230,115 @@ const cancelAppointment = async (request, response) => {
   }
 };
 
+const razorpayInstance = new razorpay({
+  key_id: process.env.RAZORPAY_KEY_ID,
+  key_secret: process.env.RAZORPAY_KEY_SECRET,
+});
+
+// API to make payment of appointment using razorpay
+const paymentRazorpay = async (request, response) => {
+  try {
+    const { appointmentId } = request.body;
+    const appointmentData = await appointmentModel.findById(appointmentId);
+
+    if (!appointmentData || appointmentData.cancelled) {
+      return response.json({ success: false, message: "Invalid Appointment" });
+    }
+
+    // creating options for razorpay payment
+    const options = {
+      amount: appointmentData.amount * 100,
+      currency: "INR",
+      receipt: appointmentId,
+    };
+
+    // CREATION OF AN ORDER
+    const order = await razorpayInstance.orders.create(options);
+
+    response.json({ success: true, order });
+  } catch (error) {
+    console.log(error);
+    return response.json({ success: false, message: error.message });
+  }
+};
+
+// API to verify payment of razorpay
+const verifyPayment = async (request, response) => {
+  try {
+    const { razorpay_order_id } = request.body;
+    const orderInfo = await razorpayInstance.orders.fetch(razorpay_order_id);
+
+    if (orderInfo.status === "paid") {
+      await appointmentModel.findByIdAndUpdate(orderInfo.receipt, {
+        payment: true,
+      });
+      response.json({ success: true, message: "Payment Done" });
+    } else {
+      response.json({ success: false, message: "Payment Failed" });
+    }
+  } catch (error) {
+    console.log(error);
+    return response.json({ success: false, message: error.message });
+  }
+};
+
+const genAI = new GoogleGenerativeAI(process.env.GOOGLE_GEMINI_API_KEY);
+
+const allowedTopics = [
+  "doctor",
+  "medical",
+  "appointment",
+  "health",
+  "symptoms",
+  "prescription",
+];
+
+const removeMarkdown = (text) => {
+  return text
+    .replace(/\*\*/g, "")
+    .replace(/[*#_-]/g, "")
+    .trim();
+};
+
+const chatWithBot = async (req, res) => {
+  try {
+    const { message } = req.body;
+
+    if (!message || typeof message !== "string") {
+      return res.status(400).json({
+        success: false,
+        reply: "Invalid input. Please send a valid message.",
+      });
+    }
+
+    if (!allowedTopics.some((topic) => message.toLowerCase().includes(topic))) {
+      return res.json({
+        success: false,
+        reply:
+          "I'm only here to help with medical and appointment-related questions.",
+      });
+    }
+
+    const model = genAI.getGenerativeModel({ model: "models/gemini-pro" });
+    const chatSession = model.startChat();
+    const result = await chatSession.sendMessage(message);
+    let botReply = result.response.text();
+
+    // Clean markdown
+    botReply = removeMarkdown(botReply);
+
+    res.json({ success: true, reply: botReply });
+  } catch (error) {
+    console.error(error);
+    res
+      .status(500)
+      .json({
+        success: false,
+        message: "Something went wrong with Gemini API.",
+      });
+  }
+};
+
 export {
   registerUser,
   loginUser,
@@ -237,4 +347,7 @@ export {
   bookAppointment,
   listAppointment,
   cancelAppointment,
+  paymentRazorpay,
+  verifyPayment,
+  chatWithBot,
 };
