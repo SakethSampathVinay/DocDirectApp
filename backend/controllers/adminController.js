@@ -162,7 +162,7 @@ const appointmentCancel = async (request, response) => {
     let slots_booked = doctorData.slots_booked;
 
     slots_booked[slotDate] = slots_booked[slotDate].filter(
-      (e) => e !== slotTime
+      (e) => e !== slotTime,
     );
     await doctorModel.findByIdAndUpdate(docId, { slots_booked });
     response.json({ success: true, message: "Appointment Cancelled" });
